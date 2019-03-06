@@ -284,20 +284,25 @@ public class JavaProcessPoolExecutor extends ProcessPoolExecutor implements Java
 			String javaPath = System.getProperty("java.home") + File.separator + "bin" +
 					File.separator + "java";
 			String classPath = System.getProperty("java.class.path");
-			ClassLoader classLoader = this.getClass().getClassLoader();
-			if (classLoader instanceof URLClassLoader) {
-				@SuppressWarnings("resource")
-				URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
-				Set<String> classPathEntries = new HashSet<>(Arrays.asList(classPath.split(File.pathSeparator)));
-				for (URL url : urlClassLoader.getURLs()) {
-					try {
-						classPathEntries.add(Paths.get(url.toURI()).toAbsolutePath().toString());
-					} catch (FileSystemNotFoundException | URISyntaxException e) {
-						continue;
+			if(options.getClassPaths() != null){
+				classPath = String.join(File.pathSeparator, options.getClassPaths());
+			}else{
+				ClassLoader classLoader = this.getClass().getClassLoader();
+				if (classLoader instanceof URLClassLoader) {
+					@SuppressWarnings("resource")
+					URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
+					Set<String> classPathEntries = new HashSet<>(Arrays.asList(classPath.split(File.pathSeparator)));
+					for (URL url : urlClassLoader.getURLs()) {
+						try {
+							classPathEntries.add(Paths.get(url.toURI()).toAbsolutePath().toString());
+						} catch (FileSystemNotFoundException | URISyntaxException e) {
+							continue;
+						}
 					}
+					classPath = String.join(File.pathSeparator, classPathEntries);
 				}
-				classPath = String.join(File.pathSeparator, classPathEntries);
 			}
+
 			String className = JavaProcess.class.getCanonicalName();
 			long keepAliveTime = 0;
 			List<String> javaOptions = new ArrayList<>();

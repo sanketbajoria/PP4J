@@ -30,7 +30,7 @@ import java.util.Base64;
  * @author Viktor Csomor
  *
  */
-class Conversion {
+public class Conversion {
 
 	/**
 	 * Only static methods.
@@ -45,7 +45,7 @@ class Conversion {
 	 * @throws NotSerializableException If some object to be serialized does not implement the 
 	 * {@link java.io.Serializable} interface.
 	 */
-	static String toString(Object o) throws IOException {
+	public static String toString(Object o) throws IOException {
 		try (ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
 				ObjectOutputStream objectOutput = new ObjectOutputStream(byteArrayOut)) {
 			objectOutput.writeObject(o);
@@ -61,7 +61,7 @@ class Conversion {
 	 * @throws ClassNotFoundException If the deserialization fails due to the class 
 	 * of the object not having been found.
 	 */
-	static Object toObject(String s) throws IOException, ClassNotFoundException {
+	public static Object toObject(String s) throws IOException, ClassNotFoundException {
 		byte[] bytes = Base64.getDecoder().decode(s);
 		try (ObjectInputStream objectInput = new ObjectInputStream(
 				new ByteArrayInputStream(bytes))) {

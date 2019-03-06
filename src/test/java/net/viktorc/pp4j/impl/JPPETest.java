@@ -31,9 +31,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.hamcrest.core.IsInstanceOf;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.internal.matchers.ThrowableCauseMatcher;
 import org.junit.rules.ExpectedException;
 
 import net.viktorc.pp4j.api.JavaProcessOptions;
@@ -737,5 +739,145 @@ public class JPPETest {
 			exec.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 		}
 	}
-	
+
+	@Test
+	public void test29() throws InterruptedException, ExecutionException, TimeoutException {
+		System.out.println(System.lineSeparator() + "Test 29");
+		JavaProcessPoolExecutor exec = new JavaProcessPoolExecutor(
+				new JavaProcessOptions() { }, 2, 2, 0, null, false);
+		try {
+			int base = 13;
+			List<Callable<Integer>> tasks = new ArrayList<>();
+			tasks.add((Callable<Integer> & Serializable) () -> {
+				Thread.sleep(90000);
+				return (int) Math.pow(base, 2);
+			});
+			tasks.add((Callable<Integer> & Serializable) () -> {
+				Thread.sleep(90000);
+				return (int) Math.pow(base, 3);
+			});
+			exceptionRule.expect(TimeoutException.class);
+			exec.invokeAll(tasks, 3000, TimeUnit.MILLISECONDS);
+		} finally {
+			exec.shutdown();
+			exec.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+		}
+	}
+
+	@Test
+	public void test30() throws InterruptedException, ExecutionException, TimeoutException {
+		System.out.println(System.lineSeparator() + "Test 30");
+		JavaProcessPoolExecutor exec = new JavaProcessPoolExecutor(
+				new JavaProcessOptions() { }, 1, 1, 0, null, false);
+		try {
+			int base = 13;
+			List<Callable<Integer>> tasks = new ArrayList<>();
+			tasks.add((Callable<Integer> & Serializable) () -> {
+				throw new IllegalArgumentException();
+			});
+			exceptionRule.expect(ExecutionException.class);
+			exceptionRule.expectCause(IsInstanceOf.<Throwable>instanceOf(IllegalArgumentException.class));
+			exec.invokeAny(tasks, 8000, TimeUnit.MILLISECONDS);
+		} finally {
+			exec.shutdown();
+			exec.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+		}
+	}
+
+	@Test
+	public void test31() throws InterruptedException, ExecutionException, TimeoutException {
+		System.out.println(System.lineSeparator() + "Test 31");
+		JavaProcessPoolExecutor exec = new JavaProcessPoolExecutor(
+				new JavaProcessOptions() { }, 1, 1, 0, null, false);
+		try {
+			int base = 13;
+			List<Callable<Integer>> tasks = new ArrayList<>();
+			tasks.add((Callable<Integer> & Serializable) () -> {
+				throw new OutOfMemoryError();
+			});
+			exceptionRule.expect(ExecutionException.class);
+			exceptionRule.expectCause(IsInstanceOf.<Throwable>instanceOf(OutOfMemoryError.class));
+			exec.invokeAny(tasks, 8000, TimeUnit.MILLISECONDS);
+		} finally {
+			exec.shutdown();
+			exec.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+		}
+	}
+
+	@Test
+	public void test32() throws InterruptedException, ExecutionException, TimeoutException {
+		System.out.println(System.lineSeparator() + "Test 31");
+		JavaProcessPoolExecutor exec = new JavaProcessPoolExecutor(
+				new SimpleJavaProcessOptions(JVMArch.BIT_64, JVMType.CLIENT, 64, 256,
+		256, 0), 1, 1, 0, null, false);
+		try {
+			int base = 13;
+			Callable<Integer> task = (Callable<Integer> & Serializable) () -> {
+				Thread.sleep(10000);
+				return 0;
+			};
+			Future<Integer> future1 = exec.submit(task);
+
+			task = (Callable<Integer> & Serializable) () -> {
+				int[][] arr = new int[100000][100000];
+				for(int i=0;i<100000;i++){
+					for(int j=0;j<100000;j++){
+						arr[i][j] = 8;
+					}
+				}
+				return 0;
+			};
+			Future<Integer> future2 = exec.submit(task);
+			try{
+				future1.get(2000, TimeUnit.MILLISECONDS);
+			}catch(TimeoutException ex){
+				future1.cancel(true);
+			}
+			try{
+				future2.get(2000, TimeUnit.MILLISECONDS);
+			}catch(TimeoutException ex){
+				future2.cancel(true);
+			}catch(ExecutionException ex){
+				if(ex.getCause() instanceof OutOfMemoryError){
+					future2.cancel(true);
+				}
+			}
+
+		} finally {
+			exec.shutdown();
+			exec.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+		}
+	}
+
+	@Test
+	public void test33() throws InterruptedException, ExecutionException, TimeoutException {
+		System.out.println(System.lineSeparator() + "Test 31");
+		JavaProcessPoolExecutor exec = new JavaProcessPoolExecutor(
+				new SimpleJavaProcessOptions(JVMArch.BIT_64, JVMType.CLIENT, 64, 256,
+						256, 0), 1, 1, 0, null, false);
+		try {
+			int base = 13;
+			Thread.sleep(20000);
+			Callable<Integer> task = (Callable<Integer> & Serializable) () -> {
+				return 0;
+			};
+			Future<Integer> future1 = exec.submit(task);
+
+			future1.get();
+			Thread.sleep(30000);
+			task = task = (Callable<Integer> & Serializable) () -> {
+				return 0;
+			};
+			Future<Integer> future2 = exec.submit(task);
+			try{
+				future1.get(2000, TimeUnit.MILLISECONDS);
+			}catch(TimeoutException ex){
+				future1.cancel(true);
+			}
+
+		} finally {
+			exec.shutdown();
+			exec.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+		}
+	}
 }

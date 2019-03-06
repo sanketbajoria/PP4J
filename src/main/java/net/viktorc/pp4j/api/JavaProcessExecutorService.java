@@ -68,9 +68,9 @@ public interface JavaProcessExecutorService extends ProcessExecutorService, Exec
 	default <T> Future<T> submit(Runnable task, T result) {
 		return submit(task, result, false);
 	}
+
 	@Override
 	default <T> Future<T> submit(Callable<T> task) {
 		return submit(task, false);
 	}
-	
 }

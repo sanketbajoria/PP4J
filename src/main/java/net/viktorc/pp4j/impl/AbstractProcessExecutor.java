@@ -205,6 +205,7 @@ abstract class AbstractProcessExecutor implements ProcessExecutor, Runnable {
 	 * ineffective if the process is currently executing a command or has not started up.
 	 * @return Whether the process was successfully terminated.
 	 */
+	private String uniqueId = String.valueOf(System.currentTimeMillis());
 	protected boolean stop(boolean forcibly) {
 		stopLock.lock();
 		try {
@@ -218,7 +219,8 @@ abstract class AbstractProcessExecutor implements ProcessExecutor, Runnable {
 					else {
 						synchronized (processLock) {
 							if (process != null)
-								process.destroy();
+								System.out.println("Process stopped - " + uniqueId);
+								process.destroyForcibly();
 						}
 					}
 				}
@@ -246,6 +248,7 @@ abstract class AbstractProcessExecutor implements ProcessExecutor, Runnable {
 	 */
 	protected boolean execute(Submission<?> submission, boolean terminateProcessAfterwards)
 			throws IOException, InterruptedException {
+		System.out.println("Task submitted - " + uniqueId);
 		if (submissionLock.tryLock()) {
 			// Make sure that the reader thread can only process output lines if this one is ready and waiting.
 			synchronized (execLock) {
@@ -327,6 +330,7 @@ abstract class AbstractProcessExecutor implements ProcessExecutor, Runnable {
 	}
 	@Override
 	public void run() {
+		System.out.println("Process started - " + uniqueId);
 		runLock.lock();
 		try {
 			termSemaphore.drainPermits();

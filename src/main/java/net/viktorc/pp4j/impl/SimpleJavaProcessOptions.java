@@ -17,6 +17,8 @@ package net.viktorc.pp4j.impl;
 
 import net.viktorc.pp4j.api.JavaProcessOptions;
 
+import java.util.List;
+
 /**
  * A simple implementation of the {@link net.viktorc.pp4j.api.JavaProcessOptions} interface for the 
  * definition of JVM options and the timeout interval of Java processes.
@@ -32,6 +34,7 @@ public class SimpleJavaProcessOptions implements JavaProcessOptions {
 	private int maxHeapSizeMb;
 	private int stackSizeKb;
 	private long keepAliveTime;
+	private List<String> classPaths;
 	
 	/**
 	 * Constructs an instance according to the specified parameters.
@@ -48,13 +51,19 @@ public class SimpleJavaProcessOptions implements JavaProcessOptions {
 	 * is non-positive, the life span of the process will not be limited.
 	 */
 	public SimpleJavaProcessOptions(JVMArch arch, JVMType type, int initHeapSizeMb, int maxHeapSizeMb,
-			int stackSizeKb, long keepAliveTime) {
+			int stackSizeKb, long keepAliveTime, List<String> classPaths) {
 		this.arch = arch;
 		this.type = type;
 		this.initHeapSizeMb = initHeapSizeMb;
 		this.maxHeapSizeMb = maxHeapSizeMb;
 		this.stackSizeKb = stackSizeKb;
 		this.keepAliveTime = keepAliveTime;
+		this.classPaths = classPaths;
+	}
+
+	public SimpleJavaProcessOptions(JVMArch arch, JVMType type, int initHeapSizeMb, int maxHeapSizeMb,
+									int stackSizeKb, long keepAliveTime) {
+		this(arch, type, initHeapSizeMb, maxHeapSizeMb, stackSizeKb, keepAliveTime, null);
 	}
 	/**
 	 * Constructs an instance according to the specified parameters.
@@ -104,6 +113,10 @@ public class SimpleJavaProcessOptions implements JavaProcessOptions {
 	@Override
 	public long getKeepAliveTime() {
 		return keepAliveTime;
+	}
+	@Override
+	public List<String> getClassPaths() {
+		return classPaths;
 	}
 	
 }

@@ -15,6 +15,8 @@
  */
 package net.viktorc.pp4j.api;
 
+import java.util.List;
+
 /**
  * An interface for the definition of the timeout of Java processes and the options for the "java" 
  * program to enable performance optimization for the forking of JVMs.
@@ -100,5 +102,9 @@ public interface JavaProcessOptions {
 	public enum JVMType {
 		CLIENT, SERVER;
 	}
+
+	public default List<String> getClassPaths(){
+	    return null;
+    }
 	
 }
