@@ -727,9 +727,10 @@ public class JPPETest {
 	public void test28() throws InterruptedException, ExecutionException {
 		System.out.println(System.lineSeparator() + "Test 28");
 		JavaProcessPoolExecutor exec = new JavaProcessPoolExecutor(
-				new JavaProcessOptions() { }, 0, 1, 0, (Runnable & Serializable) () -> {
+				new JavaProcessOptions() { }, 0, 1, 0, (Callable<Void> & Serializable) () -> {
 					for (int i = 0; i < 10; i++)
 						System.out.println("Doing stuff");
+					return null;
 				}, false);
 		try {
 			AtomicInteger n = new AtomicInteger(0);

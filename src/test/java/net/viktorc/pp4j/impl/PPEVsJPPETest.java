@@ -18,6 +18,7 @@ package net.viktorc.pp4j.impl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -52,7 +53,7 @@ public class PPEVsJPPETest {
 	private long testJNI(int minSize, int maxSize, int reserveSize, int submissions, int taskTime,
 			boolean reuse) throws Exception {
 		JavaProcessPoolExecutor javaPool = new JavaProcessPoolExecutor(new SimpleJavaProcessOptions(1, 10, 512, 0),
-				minSize, maxSize, reserveSize, reuse ? (Runnable & Serializable) () -> new WrapperJNI() :
+				minSize, maxSize, reserveSize, reuse ? (Callable<Void> & Serializable) () -> { new WrapperJNI(); return null; } :
 				null, false);
 		try {
 			Runnable javaTask = (Runnable & Serializable) () -> (new WrapperJNI()).doStuff(taskTime);
@@ -87,7 +88,7 @@ public class PPEVsJPPETest {
 	private long testJNA(int minSize, int maxSize, int reserveSize, int submissions, int taskTime,
 			boolean reuse) throws Exception {
 		JavaProcessPoolExecutor javaPool = new JavaProcessPoolExecutor(new SimpleJavaProcessOptions(1, 10, 512, 0),
-				minSize, maxSize, reserveSize, reuse ? (Runnable & Serializable) () -> WrapperJNA.INSTANCE.hashCode() :
+				minSize, maxSize, reserveSize, reuse ? (Callable<Void> & Serializable) () -> { WrapperJNA.INSTANCE.hashCode(); return null; } :
 				null, false);
 		try {
 			Runnable javaTask = (Runnable & Serializable) () -> WrapperJNA.INSTANCE.doStuff(taskTime);
@@ -140,6 +141,7 @@ public class PPEVsJPPETest {
 		}
 		javaTime = jna ? testJNA(minSize, maxSize, reserveSize, submissions, taskTime, reuse) :
 				testJNI(minSize, maxSize, reserveSize, submissions, taskTime, reuse);
+		javaTime = 0;
 		boolean success = time < javaTime;
 		System.out.printf("Native time - %.3f : Java time - %.3f %s%n", (float) (((double) time)/1000000),
 				(float) (((double) javaTime)/1000000), success ? "" : "FAIL");

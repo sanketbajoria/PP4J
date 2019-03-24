@@ -84,7 +84,7 @@ public class JavaProcessPoolExecutor extends ProcessPoolExecutor implements Java
 	 * than 0, or the maximum pool size is less than the minimum pool size or 1, or the reserve size is less than 0 
 	 * or greater than the maximum pool size.
 	 */
-	public <T extends Runnable & Serializable> JavaProcessPoolExecutor(JavaProcessOptions options, int minPoolSize,
+	public <T extends Callable & Serializable> JavaProcessPoolExecutor(JavaProcessOptions options, int minPoolSize,
 			int maxPoolSize, int reserveSize, T startupTask, boolean verbose) throws InterruptedException {
 		super(new JavaProcessManagerFactory<>(options, startupTask), minPoolSize, maxPoolSize,
 				reserveSize, verbose);
@@ -259,7 +259,7 @@ public class JavaProcessPoolExecutor extends ProcessPoolExecutor implements Java
 	 * @param <T> A type variable implementing the {@link java.lang.Runnable} and {@link java.io.Serializable} interfaces 
 	 * that defines the base class of the startup tasks.
 	 */
-	private static class JavaProcessManagerFactory <T extends Runnable & Serializable> implements ProcessManagerFactory {
+	private static class JavaProcessManagerFactory <T extends Callable & Serializable> implements ProcessManagerFactory {
 		
 		JavaProcessOptions options;
 		T startupTask;
@@ -345,7 +345,7 @@ public class JavaProcessPoolExecutor extends ProcessPoolExecutor implements Java
 	 * @param <T> A type variable implementing the {@link java.lang.Runnable} and {@link java.io.Serializable} interfaces 
 	 * that defines the base class of the startup task.
 	 */
-	private static class JavaProcessManager <T extends Runnable & Serializable> extends AbstractProcessManager {
+	private static class JavaProcessManager <T extends Callable & Serializable> extends AbstractProcessManager {
 		
 		T startupTask;
 		
@@ -375,10 +375,7 @@ public class JavaProcessPoolExecutor extends ProcessPoolExecutor implements Java
 			try {
 				// If there is a startup task, execute it.
 				if (startupTask != null)
-					executor.execute(new JavaSubmission<>((Callable<Integer> & Serializable) () -> {
-						startupTask.run();
-						return null;
-					}));
+					executor.execute(new JavaSubmission<>(startupTask));
 			} catch (Exception e) {
 				return;
 			}
