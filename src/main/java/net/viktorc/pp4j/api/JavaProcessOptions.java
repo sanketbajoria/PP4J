@@ -106,5 +106,7 @@ public interface JavaProcessOptions {
 	public default List<String> getClassPaths(){
 	    return null;
     }
+
+    public default Integer getDebugPort() { return null; }
 	
 }

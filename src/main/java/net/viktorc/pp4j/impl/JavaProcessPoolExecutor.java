@@ -322,6 +322,11 @@ public class JavaProcessPoolExecutor extends ProcessPoolExecutor implements Java
 				javaOptions.add(String.format("-Xmx%dm", maxHeap));
 			if (stack > 0)
 				javaOptions.add(String.format("-Xss%dk", stack));
+			if (options.getDebugPort() != null && options.getDebugPort() > 0){
+				javaOptions.add("-Xdebug");
+				javaOptions.add(String.format("-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=%d", options.getDebugPort()));
+			}
+
 			List<String> args = new ArrayList<>();
 			args.add(javaPath);
 			args.addAll(javaOptions);
