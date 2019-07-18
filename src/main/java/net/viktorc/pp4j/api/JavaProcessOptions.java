@@ -107,6 +107,10 @@ public interface JavaProcessOptions {
 	    return null;
     }
 
+	public default List<String> getCustomParams(){
+		return null;
+	}
+
     public default Integer getDebugPort() { return null; }
 	
 }

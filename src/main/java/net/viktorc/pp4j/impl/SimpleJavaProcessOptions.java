@@ -36,7 +36,8 @@ public class SimpleJavaProcessOptions implements JavaProcessOptions {
 	private long keepAliveTime;
 	private List<String> classPaths;
 	private Integer debugPort;
-	
+	private List<String>  customParams;
+
 	/**
 	 * Constructs an instance according to the specified parameters.
 	 * 
@@ -52,7 +53,7 @@ public class SimpleJavaProcessOptions implements JavaProcessOptions {
 	 * is non-positive, the life span of the process will not be limited.
 	 */
 	public SimpleJavaProcessOptions(JVMArch arch, JVMType type, int initHeapSizeMb, int maxHeapSizeMb,
-			int stackSizeKb, long keepAliveTime, List<String> classPaths, Integer debugPort) {
+			int stackSizeKb, long keepAliveTime, List<String> classPaths, Integer debugPort, List<String>  customParams) {
 		this.arch = arch;
 		this.type = type;
 		this.initHeapSizeMb = initHeapSizeMb;
@@ -61,16 +62,22 @@ public class SimpleJavaProcessOptions implements JavaProcessOptions {
 		this.keepAliveTime = keepAliveTime;
 		this.classPaths = classPaths;
 		this.debugPort = debugPort;
+		this.customParams = customParams;
+	}
+
+	public SimpleJavaProcessOptions(JVMArch arch, JVMType type, int initHeapSizeMb, int maxHeapSizeMb,
+									int stackSizeKb, long keepAliveTime, List<String> classPaths, Integer debugPort) {
+		this(arch, type, initHeapSizeMb, maxHeapSizeMb, stackSizeKb, keepAliveTime, classPaths, debugPort, null);
 	}
 
 	public SimpleJavaProcessOptions(JVMArch arch, JVMType type, int initHeapSizeMb, int maxHeapSizeMb,
 									int stackSizeKb, long keepAliveTime) {
-		this(arch, type, initHeapSizeMb, maxHeapSizeMb, stackSizeKb, keepAliveTime, null, null);
+		this(arch, type, initHeapSizeMb, maxHeapSizeMb, stackSizeKb, keepAliveTime, null, null, null);
 	}
 
 	public SimpleJavaProcessOptions(JVMArch arch, JVMType type, int initHeapSizeMb, int maxHeapSizeMb,
 									int stackSizeKb, long keepAliveTime, List<String> classPaths) {
-		this(arch, type, initHeapSizeMb, maxHeapSizeMb, stackSizeKb, keepAliveTime, classPaths, null);
+		this(arch, type, initHeapSizeMb, maxHeapSizeMb, stackSizeKb, keepAliveTime, classPaths, null, null);
 	}
 	/**
 	 * Constructs an instance according to the specified parameters.
@@ -125,10 +132,11 @@ public class SimpleJavaProcessOptions implements JavaProcessOptions {
 	public List<String> getClassPaths() {
 		return classPaths;
 	}
-
+	@Override
+	public List<String> getCustomParams(){ return customParams; }
 	@Override
 	public Integer getDebugPort() {
 		return debugPort;
 	}
-	
+
 }
